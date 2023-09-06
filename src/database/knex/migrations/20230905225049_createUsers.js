@@ -1,5 +1,8 @@
+const { hash } = require("bcryptjs")
+
 exports.up = async (knex) => {
   const exists = await knex.schema.hasTable("users")
+  const hashedPassword = await hash("admin123", 8)
 
   if (!exists) {
     await knex.schema
@@ -15,7 +18,7 @@ exports.up = async (knex) => {
       return knex("users").insert({
         "name": "admin",
         "email": "admin@example.com",
-        "password": "123",
+        "password": hashedPassword,
         "isAdmin": true
       })
     })
