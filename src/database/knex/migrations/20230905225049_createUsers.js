@@ -8,9 +8,9 @@ exports.up = async (knex) => {
       table.text("name");
       table.text("email");
       table.text("password");
-      table.boolean("isAdmin").default(false);
+      table.boolean("isAdmin").defaultTo(false);
 
-      table.timestamp("created_at").default(knex.fn.now());
+      table.timestamp("created_at").defaultTo(knex.fn.now());
     }).then(() => {
       return knex("users").insert({
         "name": "admin",
