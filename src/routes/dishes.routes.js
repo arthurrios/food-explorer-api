@@ -9,8 +9,9 @@ const dishesController = new DishesController()
 
 dishesRoutes.use(ensureAuthenticated)
 
+dishesRoutes.get("/:id/:user_id", dishesController.show)
+dishesRoutes.get("/", dishesController.index)
 dishesRoutes.post("/:user_id", dishesController.create)
-dishesRoutes.get("/", dishesController.show)
 dishesRoutes.delete("/", dishesController.delete)
 
 module.exports = dishesRoutes

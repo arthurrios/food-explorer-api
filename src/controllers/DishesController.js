@@ -32,7 +32,7 @@ class DishesController {
   }
 
   async show(req, res) {
-    const { id, user_id } = req.query
+    const { id, user_id } = req.params
 
     const { isAdmin } = await knex("users").where({ id: user_id }).first()
 
@@ -61,6 +61,43 @@ class DishesController {
     await knex("dishes").where({ id }).delete()
 
     return res.json()
+  }
+
+  async index(req, res) {
+    const { name, ingredients } = req.query
+
+    let dishes;
+
+    if (ingredients) {
+      const filteredIngredients = ingredients.split(",").map(ingredient => ingredient.trim())
+
+      dishes = await knex("ingredients")
+        .select([
+          "dishes.id",
+          "dishes.name"
+        ])
+        .whereLike("dishes.name", `%${name}%`)
+        .whereIn("ingredients.name", filteredIngredients)
+        .innerJoin("dishes", "dishes.id", "ingredients.dish_id")
+        .groupBy("dishes.id")
+        .orderBy("dishes.name")
+    } else {
+      dishes = await knex("dishes")
+        .whereLike("dishes.name", `%${name}%`)
+        .orderBy("dishes.name")
+    }
+
+    const allIngredients = await knex("ingredients")
+    const dishesWithIngredients = dishes.map(dish => {
+      const dishIngredients = allIngredients.filter(ingredient => ingredient.dish_id === dish.id)
+
+      return {
+        ... dish,
+        ingredients: dishIngredients
+      }
+    })
+
+    return res.json(dishesWithIngredients)
   }
 }
 
