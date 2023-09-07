@@ -28,7 +28,25 @@ class DishesController {
     })
     await knex("ingredients").insert(ingredientsInsert)
 
-    res.json()
+    return res.json()
+  }
+
+  async show(req, res) {
+    const { id, user_id } = req.query
+
+    const { isAdmin } = await knex("users").where({ id: user_id }).first()
+
+    if (!(!!isAdmin)) {
+      throw new AppError("You must be an admin to show a dish.")
+    }
+
+    const dish = await knex("dishes").where({ id }).first()
+    const ingredients = await knex("ingredients").where({ dish_id: id }).orderBy("name")
+
+    return res.json({
+      ...dish,
+      ingredients
+    })
   }
 }
 
