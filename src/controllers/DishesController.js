@@ -48,6 +48,20 @@ class DishesController {
       ingredients
     })
   }
+
+  async delete(req, res) {
+    const { id, user_id } = req.query
+
+    const { isAdmin } = await knex("users").where({ id: user_id }).first()
+
+    if (!(!!isAdmin)) {
+      throw new AppError("You must be an admin to delete a dish.")
+    }
+
+    await knex("dishes").where({ id }).delete()
+
+    return res.json()
+  }
 }
 
 module.exports = DishesController
