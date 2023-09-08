@@ -1,23 +1,33 @@
 const AppError = require("../utils/AppError")
 const knex = require("../database/knex")
+const DiskStorage = require("../providers/DiskStorage")
 
 class DishesController {
   async create(req, res) {
     const { name, price, category, description, ingredients } = req.body
+    const { filename } = req.file
     const { user_id } = req.params
+
+    const diskStorage = new DiskStorage()
  
     const { isAdmin } = await knex("users").where({ id: user_id }).first()
 
     if (!(!!isAdmin)) {
       throw new AppError("You must be an admin to create a dish.")
     }
+
+    const image = await diskStorage.saveFile(filename)
     
     const [ dish_id ] = await knex("dishes").insert({
+      image,
       name,
       price,
       category,
       description,
     })
+
+    // Insomnia multipart req
+    // const filteredIngredients = ingredients.split(",").map(ingredient => ingredient.trim())
 
     const ingredientsInsert = ingredients.map(name => {
       return {
@@ -31,8 +41,11 @@ class DishesController {
   }
 
   async update(req, res) {
-    const { name, price, category, description } = req.body
+    const { name, price, category, description, ingredients } = req.body
+    const { filename } = req.file
     const { id, user_id } = req.params
+
+    const diskStorage = new DiskStorage()
  
     const { isAdmin } = await knex("users").where({ id: user_id }).first()
 
@@ -42,16 +55,40 @@ class DishesController {
 
     const dish = await knex("dishes").where({ id }).first()
 
+
     if (!dish) {
       throw new AppError("Dish not found.")
     }
+
+    if (dish.image) {
+      await diskStorage.deleteFile(dish.image)
+    }
+
+    const image = await diskStorage.saveFile(filename)
+    dish.image = image
+
+    await knex("ingredients").where({ dish_id: id }).delete()
+
+    // Insomnia multipart req
+    // const filteredIngredients = ingredients.split(",").map(ingredient => ingredient.trim())
+
+    const ingredientsInsert = ingredients.map(name => {
+      return {
+        dish_id: id,
+        name
+      }
+    })
+    await knex("ingredients").where({ dish_id: id }).insert(ingredientsInsert)
+
 
     dish.name = name ?? dish.name;
     dish.price = price ?? dish.price;
     dish.category = category ?? dish.category;
     dish.description = description ?? dish.description;
 
+    
     await knex("dishes").where({ id }).update({
+      image: dish.image,
       name: dish.name,
       price: dish.price,
       category: dish.category,
