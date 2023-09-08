@@ -12,6 +12,7 @@ dishesRoutes.use(ensureAuthenticated)
 dishesRoutes.get("/:id/:user_id", dishesController.show)
 dishesRoutes.get("/", dishesController.index)
 dishesRoutes.post("/:user_id", dishesController.create)
+dishesRoutes.put("/:id/:user_id", dishesController.update)
 dishesRoutes.delete("/", dishesController.delete)
 
 module.exports = dishesRoutes

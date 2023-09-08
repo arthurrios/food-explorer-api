@@ -3,7 +3,7 @@ const knex = require("../database/knex")
 
 class DishesController {
   async create(req, res) {
-    const { name, image, price, category, description, ingredients } = req.body
+    const { name, price, category, description, ingredients } = req.body
     const { user_id } = req.params
  
     const { isAdmin } = await knex("users").where({ id: user_id }).first()
@@ -14,7 +14,6 @@ class DishesController {
     
     const [ dish_id ] = await knex("dishes").insert({
       name,
-      image,
       price,
       category,
       description,
@@ -29,6 +28,40 @@ class DishesController {
     await knex("ingredients").insert(ingredientsInsert)
 
     return res.json()
+  }
+
+  async update(req, res) {
+    const { name, price, category, description } = req.body
+    const { id, user_id } = req.params
+ 
+    const { isAdmin } = await knex("users").where({ id: user_id }).first()
+
+    if (!(!!isAdmin)) {
+      throw new AppError("You must be an admin to udpate a dish.")
+    }
+
+    const dish = await knex("dishes").where({ id }).first()
+
+    if (!dish) {
+      throw new AppError("Dish not found.")
+    }
+
+    dish.name = name ?? dish.name;
+    dish.price = price ?? dish.price;
+    dish.category = category ?? dish.category;
+    dish.description = description ?? dish.description;
+
+    await knex("dishes").where({ id }).update({
+      name: dish.name,
+      price: dish.price,
+      category: dish.category,
+      description: dish.description,
+      updated_at: (new Date().toISOString().split('T')[0] + ' '
+      + new Date().toTimeString().split(' ')[0])
+    })
+    return res.json({
+      ...dish
+    })
   }
 
   async show(req, res) {
