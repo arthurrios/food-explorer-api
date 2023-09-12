@@ -6,15 +6,8 @@ class DishesController {
   async create(req, res) {
     const { name, price, category, description, ingredients } = req.body
     const { filename } = req.file
-    const { user_id } = req.params
 
     const diskStorage = new DiskStorage()
- 
-    const { isAdmin } = await knex("users").where({ id: user_id }).first()
-
-    if (!(!!isAdmin)) {
-      throw new AppError("You must be an admin to create a dish.")
-    }
 
     const image = await diskStorage.saveFile(filename)
     
@@ -43,18 +36,11 @@ class DishesController {
   async update(req, res) {
     const { name, price, category, description, ingredients } = req.body
     const { filename } = req.file
-    const { id, user_id } = req.params
+    const { id } = req.params
 
     const diskStorage = new DiskStorage()
- 
-    const { isAdmin } = await knex("users").where({ id: user_id }).first()
-
-    if (!(!!isAdmin)) {
-      throw new AppError("You must be an admin to udpate a dish.")
-    }
 
     const dish = await knex("dishes").where({ id }).first()
-
 
     if (!dish) {
       throw new AppError("Dish not found.")
@@ -102,13 +88,7 @@ class DishesController {
   }
 
   async show(req, res) {
-    const { id, user_id } = req.params
-
-    const { isAdmin } = await knex("users").where({ id: user_id }).first()
-
-    if (!(!!isAdmin)) {
-      throw new AppError("You must be an admin to show a dish.")
-    }
+    const { id } = req.params
 
     const dish = await knex("dishes").where({ id }).first()
     const ingredients = await knex("ingredients").where({ dish_id: id }).orderBy("name")
@@ -120,13 +100,7 @@ class DishesController {
   }
 
   async delete(req, res) {
-    const { id, user_id } = req.query
-
-    const { isAdmin } = await knex("users").where({ id: user_id }).first()
-
-    if (!(!!isAdmin)) {
-      throw new AppError("You must be an admin to delete a dish.")
-    }
+    const { id } = req.params
 
     await knex("dishes").where({ id }).delete()
 

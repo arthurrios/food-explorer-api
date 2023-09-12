@@ -1,26 +1,17 @@
-const { hash } = require("bcryptjs")
-
 exports.up = async (knex) => {
   const exists = await knex.schema.hasTable("users")
-  const hashedPassword = await hash("admin123", 8)
 
   if (!exists) {
     await knex.schema
     .createTable("users", table => {
-      table.increments("id");
-      table.text("name");
-      table.text("email");
-      table.text("password");
-      table.boolean("isAdmin").defaultTo(false);
-
+      table.increments("id").notNullable();
+      table.text("name").notNullable();
+      table.text("email").notNullable();
+      table.text("password").notNullable();
+      
+      table.enum("role", ["admin", "customer"], { useNative: true, enumName: "roles" })
+        .notNullable().default("customer");
       table.timestamp("created_at").defaultTo(knex.fn.now());
-    }).then(() => {
-      return knex("users").insert({
-        "name": "admin",
-        "email": "admin@example.com",
-        "password": hashedPassword,
-        "isAdmin": true
-      })
     })
   }
 }

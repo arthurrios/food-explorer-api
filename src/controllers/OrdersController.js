@@ -39,13 +39,6 @@ class OrdersController {
 
   async updateStatus(req, res) {
     const { status, orderId } = req.query
-    const { user_id } = req.params
-
-    const { isAdmin } = await knex("users").where({ id: user_id }).first()
-
-    if (!(!!isAdmin)) {
-      throw new AppError("You must be an admin to update an order status.")
-    }
 
     await knex("orders").where({ id: orderId }).update({
       status: status
@@ -74,14 +67,6 @@ class OrdersController {
   }
 
   async index(req, res) {
-    const { user_id } = req.params
-
-    const { isAdmin } = await knex("users").where({ id: user_id }).first()
-
-    if (!(!!isAdmin)) {
-      throw new AppError("You must be an admin to index all orders.")
-    }
-
     const orders = await knex("orders")
 
     const ordersItems = await knex("orderItems")
