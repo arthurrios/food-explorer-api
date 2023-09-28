@@ -12,10 +12,16 @@ exports.up = async (knex) => {
       table.enum("role", ["admin", "customer"], { useNative: true, enumName: "roles" })
         .notNullable().default("customer");
       table.timestamp("created_at").defaultTo(knex.fn.now());
+    }).then(() => {
+      return knex("users").insert({
+        "name": "Admin",
+        "email": "admin@email.com",
+        "password": "admin123",
+        "role": "admin"
+      })
     })
   }
 }
-
 
 exports.down = async (knex) => {
   await knex.schema.dropTableIfExists("users")
