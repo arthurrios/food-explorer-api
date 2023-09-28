@@ -35,7 +35,7 @@ class SessionsController {
 
     delete user.password
 
-    return res.json({ token })
+    return res.json({ user, token })
   }
 }
 
