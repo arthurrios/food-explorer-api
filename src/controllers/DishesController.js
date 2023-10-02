@@ -22,7 +22,7 @@ class DishesController {
     // Insomnia multipart req
     // const filteredIngredients = ingredients.split(",").map(ingredient => ingredient.trim())
 
-    const ingredientsInsert = ingredients.map(name => {
+    const ingredientsInsert = JSON.parse(ingredients).map(name => {
       return {
         dish_id,
         name
