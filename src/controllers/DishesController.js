@@ -46,19 +46,20 @@ class DishesController {
       throw new AppError("Dish not found.")
     }
 
-    if (dish.image) {
-      await diskStorage.deleteFile(dish.image)
+    if (req.file) {
+      if (dish.image) {
+        await diskStorage.deleteFile(dish.image)
+      }
+      const image = await diskStorage.saveFile(filename)
+      dish.image = image
     }
-
-    const image = await diskStorage.saveFile(filename)
-    dish.image = image
 
     await knex("ingredients").where({ dish_id: id }).delete()
 
     // Insomnia multipart req
     // const filteredIngredients = ingredients.split(",").map(ingredient => ingredient.trim())
 
-    const ingredientsInsert = ingredients.map(name => {
+    const ingredientsInsert = JSON.parse(ingredients).map(name => {
       return {
         dish_id: id,
         name
