@@ -11,7 +11,10 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ credentials: true }))
+app.use(cors({
+    origin: 'http://localhost:5173/',
+    withCredentials: true 
+  }))
 
 app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER))
 
