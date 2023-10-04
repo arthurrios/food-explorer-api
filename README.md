@@ -13,6 +13,8 @@ This is the backend code of the application Food Explorer that simulates a food 
 - `yarn run dev` or `yarn dev`
 5. Create a `.env` file like the one in the example and add your **PORT** and your **AUTH_SECRET**.
    [Frontend Repo](https://github.com/arthurrios/food-explorer-web)
+## Deploy:
+[Database](https://food-explorer-api-erau.onrender.com)
 ## How to use:
 ### As Admin:
 1. Log with the admin account:
