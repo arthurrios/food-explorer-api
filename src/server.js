@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
     origin: 'http://localhost:5173',
-    withCredentials: 'true' 
+    credentials: true 
   }))
 
 app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER))
